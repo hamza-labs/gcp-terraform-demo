@@ -71,7 +71,7 @@ output "Web-server-URL" {
   value = join("", ["http://", google_compute_instance.default.network_interface.0.access_config.0.nat_ip, ":5000"])
 }
 
-# Store Terraform state in a Cloud Storage bucket
+# Let's Store Terraform state in a Cloud Storage bucket
 resource "random_id" "bucket_prefix" {
   byte_length = 8
 }
