@@ -52,25 +52,6 @@ resource "google_compute_firewall" "ssh" {
   target_tags   = ["ssh"]
 }
 
-# Connect to the VM with SSH
-# In Connect column, click SSH. An SSH-in-browser terminal window opens for the running VM.
-# Build the Flask app 
-# nano app.py
-/* 
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def hello_cloud():
-  return 'Hello Cloud!'
-
-app.run(host='0.0.0.0')
-*/ 
-# python3 app.py
-# curl http://0.0.0.0:5000
-
-# Open port 5000 on the VM
-# 
 resource "google_compute_firewall" "flask" {
   name    = "flask-app-firewall"
   network = google_compute_network.vpc_network.id
@@ -87,5 +68,20 @@ resource "google_compute_firewall" "flask" {
 
 // A variable for extracting the external IP address of the VM
 output "Web-server-URL" {
- value = join("",["http://",google_compute_instance.default.network_interface.0.access_config.0.nat_ip,":5000"])
+  value = join("", ["http://", google_compute_instance.default.network_interface.0.access_config.0.nat_ip, ":5000"])
+}
+
+# Store Terraform state in a Cloud Storage bucket
+resource "random_id" "bucket_prefix" {
+  byte_length = 8
+}
+
+resource "google_storage_bucket" "default" {
+  name          = "${random_id.bucket_prefix.hex}-bucket-tfstate"
+  force_destroy = false
+  location      = "US"
+  storage_class = "STANDARD"
+  versioning {
+    enabled = true
+  }
 }
